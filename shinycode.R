@@ -1,5 +1,6 @@
 # Load necessary libraries
 library(shiny)
+library(ggplot2)
 library(httr)
 library(jsonlite)
 
@@ -45,23 +46,21 @@ get_kolada_data <- function(kpi, municipality_id, year) {
   return(parsed_content)
 }
 
-# Define UI for application
+# Define UI for the application
 ui <- fluidPage(
-  
   # Application title
-  titlePanel("Kolada Data Viewer"),
+  titlePanel("Kolada Children Born Plot"),
   
   # Sidebar for input
   sidebarLayout(
     sidebarPanel(
       textInput("municipality", "Enter Municipality Name:", value = "Stockholm"),
-      selectInput("year", "Select Year:", choices = c("2019", "2020", "2021", "2022", "2023")),
       actionButton("goButton", "Get Data")
     ),
     
-    # Show results in the main panel
+    # Main panel to show the plot
     mainPanel(
-      verbatimTextOutput("result")
+      plotOutput("kpiPlot")  # The plot output
     )
   )
 )
@@ -71,32 +70,56 @@ server <- function(input, output, session) {
   
   observeEvent(input$goButton, {
     municipality_name <- input$municipality
-    year <- input$year
-    kpi <- "N02799"  # Example KPI for maternal care
+    kpi <- "N02799" 
     
-    output$result <- renderPrint({
+    output$kpiPlot <- renderPlot({
       tryCatch({
         # Get municipality ID
         municipality_id <- get_municipality_id(municipality_name)
         
-        # Fetch Kolada data
-        data <- get_kolada_data(kpi, municipality_id, year)
+        # Fetch data for multiple years (2019 to 2023)
+        years <- 2019:2023
+        values <- numeric(length(years))
         
-        # Check if data is empty
-        if (data$count == 0) {
-          return("No data available for the selected municipality and year.")
-        } else {
-          # Display the result
-          return(data)
+        for (i in seq_along(years)) {
+          data <- get_kolada_data(kpi, municipality_id, as.character(years[i]))
+          
+          # Check if the 'values' field contains data and has the nested structure
+          if (!is.null(data$values) && nrow(data$values) > 0 && !is.null(data$values$values[[1]])) {
+            # Extract the 'value' field from the inner data frame
+            gender_data <- data$values$values[[1]]  # Access the inner data frame
+            if (!is.null(gender_data$value)) {
+              # Assuming we want the first row (e.g., gender "K" for "female")
+              values[i] <- gender_data$value[gender_data$gender == "K"][1]  # First "K" value
+            } else {
+              values[i] <- NA
+            }
+          } else {
+            # Handle cases where no valid data is available
+            values[i] <- NA
+          }
         }
         
+        # Create a data frame for plotting
+        plot_data <- data.frame(Year = years, KPI_Value = values)
+        
+        # Create the plot using ggplot2
+        ggplot(plot_data, aes(x = Year, y = KPI_Value)) +
+          geom_line(color = "blue") +
+          geom_point() +
+          labs(title = "Number of children born / 1000", x = "Year", y = "KPI Value") +
+          theme_minimal()
+        
       }, error = function(e) {
-        # If there's an error, print the error message
-        paste("Error: ", e$message)
+        # Print error message to console or handle in some other way
+        print(paste("Error: ", e$message))
       })
     })
   })
 }
+
+
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)
