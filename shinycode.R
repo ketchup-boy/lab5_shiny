@@ -86,7 +86,8 @@ server <- function(input, output, session) {
         if (data$count == 0) {
           return("No data available for the selected municipality and year.")
         } else {
-          browser()
+          res_data <- data.frame(kpi = data$kpi, municipality = data$municipality, year = data$year)
+          gender_data <- data.frame()
           # res_data <- data.frame(kpi = data$kpi, )
           # res_data <- data.frame()
           # res_data$kpi <- data$kpi
