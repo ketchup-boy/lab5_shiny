@@ -86,8 +86,13 @@ server <- function(input, output, session) {
         if (data$count == 0) {
           return("No data available for the selected municipality and year.")
         } else {
-          
-          data$values$count <- NULL
+          browser()
+          # res_data <- data.frame(kpi = data$kpi, )
+          # res_data <- data.frame()
+          # res_data$kpi <- data$kpi
+          # res_data$municipality <- data$municipality
+          # res_data$period <- data$period
+          # data$values$count <- NULL
           
           # Display the result
           return(data)
