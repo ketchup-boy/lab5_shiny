@@ -86,6 +86,9 @@ server <- function(input, output, session) {
         if (data$count == 0) {
           return("No data available for the selected municipality and year.")
         } else {
+          
+          data$values$count <- NULL
+          
           # Display the result
           return(data)
         }
