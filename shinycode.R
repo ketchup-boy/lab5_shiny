@@ -5,22 +5,6 @@ library(httr)
 library(jsonlite)
 
 
-#' Get ID for municipality
-#'
-#' This function accepts a string for a municipality and returns the kolada ID for the given municipality
-#'
-#' @param municipality_name String for the desired municipality to get id for
-#'
-#' @return The id for the input municipality
-#' @import httr
-#' @import jsonlite
-#' @examples
-#' \dontrun{
-#' get_municipality("Stockholm")
-#' }
-#' @name get_municipality_id
-#' @export get_municipality_id
-
 # Function to get municipality ID
 get_municipality_id <- function(municipality_name) {
   base_url <- "https://api.kolada.se/v2/"
@@ -47,23 +31,6 @@ get_municipality_id <- function(municipality_name) {
   return(match$id[1])
 }
 
-#' Get Data from Kolada API
-#'
-#' This function fetches data from the Kolada API.
-#'
-#' @param kpi A string of the desired kpi statistic.
-#' @param municipality a string of the desired municipality that user wants kpi statistic about.
-#' @param year a string for the year the users want statistics about
-#'
-#' @return A list containing the API response data.
-#' @import httr
-#' @import jsonlite
-#' @examples
-#' \dontrun{
-#' get_kolada_data(kpi = "N00945", municipality = "1080", year = "2023")
-#' }
-#' @name get_kolada_data
-#' @export get_kolada_data
 
 # Function to get Kolada data using KPI, municipality ID, and year
 get_kolada_data <- function(kpi, municipality_id, year) {
@@ -81,15 +48,6 @@ get_kolada_data <- function(kpi, municipality_id, year) {
   return(parsed_content)
 }
 
-#' Shiny UI for Kolada Children Born Plot Application
-#'
-#' This function defines the user interface for the Shiny application that allows 
-#' users to input a municipality name and view a plot of the number of children born
-#' for the selected municipality from 2019 to 2023.
-#'
-#' @return A Shiny UI object.
-#'
-#' @export
 
 # Define UI for the application
 ui <- fluidPage(
@@ -110,17 +68,6 @@ ui <- fluidPage(
   )
 )
 
-#' Shiny Server Logic for Kolada Children Born Plot Application
-#'
-#' This function defines the server logic for the Shiny application, which listens for user input,
-#' retrieves the municipality ID, fetches Kolada data, and plots the number of children born per 1000
-#' for the years 2019 to 2023.
-#'
-#' @param input The input object from Shiny containing user inputs from the UI.
-#' @param output The output object from Shiny for displaying results in the UI.
-#' @param session The session object from Shiny to handle user sessions.
-#'
-#' @export
 
 # Define server logic
 server <- function(input, output, session) {
